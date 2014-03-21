@@ -1,0 +1,200 @@
+
+#############################################################################################################################################################################
+#### sensitivity to degrees of freedom choice (visual assessment): 
+cut2<-192
+a<-( index<=cut2+1)
+xa<-w.d$index[a]
+y50<-w.d$w50[a]
+y5<-w.d$w5[a]
+y95<-w.d$w95[a]
+
+
+cut<-192
+ylimit<-200
+color<-c(4,2,1)
+
+plot(x.star,w.star,xlim=c(-2,cut+5), ylim=c(30,ylimit) ,xlab="", main= "",ylab="" , axes=F, font.main=2,col.main="blue",cex.lab=1.5,cex.main=2,type="n")
+
+mtext(side=3,"Males and Females 0-3192 months",cex=1,font=2,col="blue",adj=0,line=2)
+
+text(-1,ylimit/2,"Height (cm)",srt=90,cex=1.5)
+
+text(cut/2,-2,"Age (mos)", cex=1.5)
+
+
+axis(1,labels=FALSE,at=c(seq(0,cut, by = 6)),pos=c(0,0))
+axis(1,labels=(seq(0,cut ,by=6)),at=c(seq(0,cut, by=6)),cex.axis=1.5,pos=c(0,0))
+par(las=1)
+axis(2,labels =c(seq(0,ylimit, by=5)),at=c(seq(0,ylimit, by=5)),cex.axis=1.5,pos=c(0,0))
+axis(4,labels =2.2*c(seq(0,ylimit,by=5)),at=c(seq(0,ylimit,by=5)),pos=c(cut+2,0),cex.axis=1.5)
+text(cut+5,ylimit/2,"Height (in)",srt=270, cex=1.5)
+
+# data points
+
+points(xm.star[xm.star<=cut],wm.star[xm.star<=cut], col="blue")
+points(xf.star[xf.star<=cut],wf.star[xf.star<=cut], col="red")
+
+color<-c(4,2,1,3,5,4,2,1,3,5)
+degf<-c(6:8)
+end<-length(df)
+for (i in 1:end) {
+
+
+g50a <- gamlss(y50~cs(xa,df=degf[i]), family=NO)
+fit50a<-fitted(g50a)
+g5a <- gamlss(y5~cs(xa,df=degf[i]), family=NO)
+fit5a<-fitted(g5a)
+g95a <- gamlss(y95~cs(xa,df=degf[i]), family=NO)
+fit95a<-fitted(g95a)
+
+lines(xa,fit50a, lty=2, col=color[i], lwd=3)
+lines(xa,fit5a, lty=2, col=color[i], lwd=3)
+lines(xa,fit95a, lty=2, col=color[i], lwd=3)
+}
+# #######what does spm give us?  LOUSY!!!! df =2?  way to smooth, almost linear #######################
+
+fit50 <- spm(y50~xa)
+fit5 <- spm(y5~xa)
+fit95 <- spm(y95~xa)
+
+lines(fit50, col=color[1], lty=2, se=F)
+############################################################################################################
+CONCLUSION: 6 degrees of freedom is optimal: no gain from subsequent increments
+
+
+#############################################################################################################################################################################
+#### sensitivity to degrees of freedom choice (visual assessment): those with growth hormone###
+
+
+# all males, no gh
+
+xm.star <- df$agemos[ df$gender==1 & df$gh_yes==1]  
+wm.star <- df$weight[ df$gender==1 & df$gh_yes==1]
+
+# all females no gh
+
+xf.star <- df$agemos[ df$gender==0 & df$gh_yes==1]  
+wf.star <- df$weight[ df$gender==0 & df$gh_yes==1]
+
+a<-( index<=cut2+1)
+xag<-w.d$index[a]
+y50<-w.d$wgh50[a]
+y5<-w.d$wgh5[a]
+y95<-w.d$wgh95[a]
+
+cut<-120
+ylimit<-30
+color<-c(4,2,1)
+
+plot(x.star,w.star,xlim=c(-2,cut+5), ylim=c(-2,ylimit) ,xlab="", main= "",ylab="" , axes=F, font.main=2,col.main="blue",cex.lab=1.5,cex.main=2,type="n")
+
+mtext(side=3,"Males and Females 0-36 months : Costello",cex=1,font=2,col="blue",adj=0,line=2)
+
+text(-1,ylimit/2,"Weight (kg)",srt=90,cex=1.5)
+
+text(cut/2,-2,"Age (mos)", cex=1.5)
+
+
+axis(1,labels=FALSE,at=c(seq(0,cut, by = 6)),pos=c(0,0))
+axis(1,labels=(seq(0,cut ,by=6)),at=c(seq(0,cut, by=6)),cex.axis=1.5,pos=c(0,0))
+par(las=1)
+axis(2,labels =c(seq(0,ylimit, by=5)),at=c(seq(0,ylimit, by=5)),cex.axis=1.5,pos=c(0,0))
+axis(4,labels =2.2*c(seq(0,ylimit,by=5)),at=c(seq(0,ylimit,by=5)),pos=c(122,0),cex.axis=1.5)
+text(124,ylimit/2,"Weight (lbs)",srt=270, cex=1.5)
+# data points
+
+points(xm.star[xm.star<=cut],wm.star[xm.star<=cut], col="blue")
+points(xf.star[xf.star<=cut],wf.star[xf.star<=cut], col="red")
+
+color<-c(4,2,1,3,5,4,2,1,3,5)
+df<-c(6:10)
+end<-length(df)
+
+for (i in 1:end) {
+
+
+
+g50ag <- gamlss(y50~cs(xag,df=df[i]), family=NO)
+fit50ag<-fitted(g50ag)
+g5ag <- gamlss(y5~cs(xag,df=df[i]), family=NO)
+fit5ag<-fitted(g5ag)
+g95ag <- gamlss(y95~cs(xag,df=df[i]), family=NO)
+fit95ag<-fitted(g95ag)
+
+lines(fit50ag, lty=1, col=color[i], lwd=3)
+lines(fit5ag, lty=1, col=color[i], lwd=3)
+lines(fit95ag, lty=1, col=color[i], lwd=3)
+}
+
+
+############################################################################################################################################################################
+
+########## interaction with gh at 36 months
+
+# for both, with 6 df
+
+# first without gh
+
+a<-( index<=cut2+1)
+xa<-w.d$index[a]
+y50<-w.d$wngh50[a]
+y5<-w.d$wngh5[a]
+y95<-w.d$wngh95[a]
+
+
+g50a <- gamlss(y50~cs(xa,df=6), family=NO)
+fit50a<-fitted(g50a)
+g5a <- gamlss(y5~cs(xa,df=6), family=NO)
+fit5a<-fitted(g5a)
+g95a <- gamlss(y95~cs(xa,df=6), family=NO)
+fit95a<-fitted(g95a)
+
+
+# now with gh
+
+a<-( index<=cut2+1 & index >=36)
+xag<-w.d$index[a]
+y50<-w.d$wgh50[a]
+y5<-w.d$wgh5[a]
+y95<-w.d$wgh95[a]
+
+
+g50ag <- gamlss(y50~cs(xag,df=2), family=NO)
+fit50ag<-fitted(g50ag)
+g5ag <- gamlss(y5~cs(xag,df=2), family=NO)
+fit5ag<-fitted(g5ag)
+g95ag <- gamlss(y95~cs(xag,df=2), family=NO)
+fit95ag<-fitted(g95ag)
+
+cut<-120
+ylimit<-30
+
+
+plot(x.star,w.star,xlim=c(-2,cut+5), ylim=c(-2,ylimit) ,xlab="", main= "",ylab="" , axes=F, font.main=2,col.main="blue",cex.lab=1.5,cex.main=2,type="n")
+
+mtext(side=3,"Males and Females 0-36 months : Costello",cex=1,font=2,col="blue",adj=0,line=2)
+
+text(-1,ylimit/2,"Weight (kg)",srt=90,cex=1.5)
+
+text(cut/2,-2,"Age (mos)", cex=1.5)
+
+
+axis(1,labels=FALSE,at=c(seq(0,cut, by = 6)),pos=c(0,0))
+axis(1,labels=(seq(0,cut ,by=6)),at=c(seq(0,cut, by=6)),cex.axis=1.5,pos=c(0,0))
+par(las=1)
+axis(2,labels =c(seq(0,ylimit, by=5)),at=c(seq(0,ylimit, by=5)),cex.axis=1.5,pos=c(0,0))
+axis(4,labels =2.2*c(seq(0,ylimit,by=5)),at=c(seq(0,ylimit,by=5)),pos=c(122,0),cex.axis=1.5)
+text(124,ylimit/2,"Weight (lbs)",srt=270, cex=1.5)
+# data points
+
+points(xm.star[xm.star<=cut],wm.star[xm.star<=cut], col="blue")
+points(xf.star[xf.star<=cut],wf.star[xf.star<=cut], col="red")
+
+lines(xa,fit50a, lty=1, col=color[1], lwd=3)
+lines(xa,fit5a, lty=1, col=color[2], lwd=3)
+lines(xa,fit95a, lty=1, col=color[3], lwd=3)
+
+
+lines(xag,fit50ag, lty=2, col=color[1], lwd=3)
+lines(xag,fit5ag, lty=2, col=color[2], lwd=3)
+lines(xag,fit95ag, lty=2, col=color[3], lwd=3)

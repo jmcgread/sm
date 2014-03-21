@@ -1,0 +1,257 @@
+
+
+
+
+################################################################################################################################################################################################
+
+# smoothing for graphics below
+
+
+cut2<-192
+
+# these reference the data frame w.d from the "creating percentiles" program
+
+a<-( w.d$index<=cut2+1)
+xa<-w.d$index[a]
+y50<-w.d$w50[a]
+y5<-w.d$w5[a]
+y95<-w.d$w95[a]
+
+# final choice for smoothing df, base on sensitivity analysis: df =6
+xx<-6
+g50a <- gamlss(y50~cs(xa,df=xx), family=NO)
+fit50a<-fitted(g50a)
+g5a <- gamlss(y5~cs(xa,df=xx), family=NO)
+fit5a<-fitted(g5a)
+g95a <- gamlss(y95~cs(xa,df=xx), family=NO)
+fit95a<-fitted(g95a)
+
+
+##################################################################################
+Graphic, Height for age 0-36 months
+
+## set cutoff months at 36, upper
+
+
+cut<-36
+ylimit1<-40
+ylimit2<-105
+color<-c(4,2,1)
+
+plot(x.star,w.star,xlim=c(-3,cut+5), ylim=c(-10+ylimit1,ylimit2) ,xlab="", main= "",ylab="" , axes=F, font.main=2,col.main="blue",cex.lab=1.5,cex.main=2,type="n")
+
+
+mtext(side=3,"Smith-Lemli-Optiz Syndrome, Height vs. Age (0-3 Years) ",cex=2,font=2,col="blue",adj=0,line=2)
+#mtext(side=3,"Smith-Lemli-Optiz Syndrome, Height vs. Age (0-3 Years) with CDC Curves",cex=2,font=2,col="blue",adj=0,line=2)
+
+text(-3,ylimit1+(ylimit2-ylimit1)/2,"Height (cm)",srt=90,cex=1.5)
+
+text(cut/2,ylimit1-8,"Age (mos)", cex=1.5)
+
+
+axis(1,labels=FALSE,at=c(seq(0,cut, by = 6)),pos=c(ylimit1,ylimit1))
+axis(1,labels=(seq(0,cut ,by=6)),at=c(seq(0,cut, by=6)),cex.axis=1.5,pos=c(ylimit1,ylimit1))
+par(las=1)
+axis(2,labels =c(seq(ylimit1,ylimit2, by=5)),at=c(seq(ylimit1,ylimit2, by=5)),cex.axis=1.5,pos=c(0,ylimit1))
+axis(4,labels =0.4*c(seq(ylimit1,ylimit2,by=5)),at=c(seq(ylimit1,ylimit2,by=5)),pos=c(38,0),cex.axis=1.5)
+text(41,ylimit1+(ylimit2-ylimit1)/2,"Height (inches)",srt=270, cex=1.5)
+
+# data points
+
+#points(xm.star[xm.star<=cut],wm.star[xm.star<=cut], col="blue")
+#points(xf.star[xf.star<=cut],wf.star[xf.star<=cut], col="red")
+
+# smooths
+
+lines(xa[1:(cut+1)],fit50a[1:(cut+1)], lty=1, col=color[1], lwd=3)
+text(cut+1, fit50a[cut+1],"50th" ,font=3)
+lines(xa[1:(cut+1)],fit5a[1:(cut+1)], lty=1, col=color[2], lwd=3)
+text(cut+1, fit5a[cut+1],"5th" ,font=3)
+lines(xa[1:(cut+1)],fit95a[1:(cut+1)], lty=1, col=color[3], lwd=3)
+text(cut+1, fit95a[cut+1],"95th" ,font=3)
+
+# gridlines
+for (l in c(seq(ylimit1,ylimit2, by=5))) {
+x<-seq(0,cut)
+y<-rep.int(l,length(x))
+lines(x,y, lty=2)
+}
+
+# gridlines
+for (l in 1:cut) {
+y<-seq(ylimit1,ylimit2)
+x<-rep.int(l,length(y))
+lines(x,y, lty=2)
+
+}
+
+# CDC curves
+# males
+lines(agemos[sex==0 & agemos<=36],p50h[sex==0 & agemos<=36], lty=2, col=color[1], lwd=3)
+#text(37, p50h[sex==0][36],"CDC 50th" ,font=2, cex=.7)
+lines(agemos[sex==0 & agemos<=36],p5h[sex==0 & agemos<=36], lty=2, col=color[2], lwd=3)
+#text(37, p5h[sex==0][36]+2,"CDC 5th" ,font=2, cex=.7)
+lines(agemos[sex==0 & agemos<=36],p95h[sex==0 & agemos<=36], lty=2, col=color[3], lwd=3)
+#text(37, p95h[sex==0][36],"CDC 95th" ,font=2, cex=.7)
+
+# females
+
+lines(agemos[sex==1& agemos<=36],p50h[sex==1& agemos<=36], lty=3, col=color[1], lwd=3)
+#text(37, p50h[sex==1][36],"CDC 50th" ,font=2, cex=.7)
+lines(agemos[sex==1& agemos<=36],p5h[sex==1& agemos<=36], lty=3, col=color[2], lwd=3)
+#text(37, p5h[sex==1][36],"CDC 5th" ,font=2, cex=.7)
+lines(agemos[sex==1& agemos<=36],p95h[sex==1& agemos<=36], lty=3, col=color[3], lwd=3)
+#text(37, p95h[sex==1][36],"CDC 95th" ,font=2, cex=.7)
+
+
+leg1.txt<-c("SLOS Males and Females", "CDC Males", "CDC Females")
+legend(2,103,col=c(color[3],color[3],color[3]),lwd=c(2,2,2),lty=c(1,2,3),legend= leg1.txt,text.width=10, cex=1.2, title=" Percentiles (5th, 50th, 95th)",bg="white")
+
+####################################################################################################################
+####################################################################################################################
+
+Graphic, weight for age 0-192 months 
+
+## set cutoff months at , upper
+cut<-192
+
+xm.star <- df$agemos[ df$gender==0& nona & df$agemos<=cut]  
+wm.star <- df$height[ df$gender==0& nona & df$agemos<=cut]
+
+
+xf.star <- df$agemos[ df$gender==1& nona  & df$agemos<=cut]  
+wf.star <- df$height[ df$gender==1& nona  & df$agemos<=cut]
+# FIGURE 3: weight for age graphs 0-216
+
+
+
+# FIGURE 3: weight for age graphs 0-192
+tiff("C:/USERS/JMC/DESKTOP/JMCGREADY/consulting/ryan lee/SLOS/paper/graphs/hage_0to16.tiff",width=1024, height=768)
+cut<-192
+ylimit1<-30
+ylimit2<-200
+color<-c(4,2,1)
+
+plot(x.star,w.star,xlim=c(-15,cut+15), ylim=c(-15+ylimit1,ylimit2) ,xlab="", main= "",ylab="" , axes=F, font.main=2,col.main="blue",cex.lab=1.5,cex.main=2,type="n")
+
+mtext(side=3,"Smith-Lemli-Optiz Syndrome, Height vs. Age (0-16 Years) ",cex=2,font=2,col="blue",adj=0,line=2)
+#mtext(side=3,"Smith-Lemli-Optiz Syndrome, Height vs. Age (0-16 Years) with CDC Curves",cex=2,font=2,col="blue",adj=0,line=2)
+
+text(-13,ylimit1+(ylimit2-ylimit1)/2,"Height (cm)",srt=90,cex=1.5)
+
+text(cut/2,ylimit1-14,"Age (years)", cex=1.5)
+
+
+axis(1,labels=FALSE,at=c(seq(0,cut, by = 6)),pos=c(ylimit1,ylimit1))
+axis(1,labels=(seq(0,cut/12 ,by=1)),at=c(seq(0,cut, by=12)),cex.axis=1.5,pos=c(ylimit1,ylimit1))
+par(las=1)
+axis(2,labels =c(seq(ylimit1,ylimit2, by=10)),at=c(seq(ylimit1,ylimit2, by=10)),cex.axis=1.5,pos=c(0,ylimit1))
+axis(4,labels =0.4*c(seq(ylimit1,ylimit2,by=10)),at=c(seq(ylimit1,ylimit2,by=10)),pos=c(cut+5,0),cex.axis=1.5)
+text(cut+15,ylimit1+(ylimit2-ylimit1)/2,"Height (inches)",srt=270, cex=1.5)
+
+# data points
+
+#points(xm.star[xm.star<=cut],wm.star[xm.star<=cut], col="blue")
+#points(xf.star[xf.star<=cut],wf.star[xf.star<=cut], col="red")
+
+# smooths
+
+lines(xa[1:(cut+1)],fit50a[1:(cut+1)], lty=1, col=color[1], lwd=3)
+text(cut+3, fit50a[cut+1],"50th" ,font=3)
+lines(xa[1:(cut+1)],fit5a[1:(cut+1)], lty=1, col=color[2], lwd=3)
+text(cut+3, fit5a[cut+1],"5th" ,font=3)
+lines(xa[1:(cut+1)],fit95a[1:(cut+1)], lty=1, col=color[3], lwd=3)
+text(cut+3, fit95a[cut+1],"95th" ,font=3)
+
+# gridlines
+for (l in c(seq(ylimit1,ylimit2, by=5))) {
+x<-seq(0,cut)
+y<-rep.int(l,length(x))
+lines(x,y, lty=2)
+}
+
+# gridlines
+for (l in c(seq(0,cut, by=6))){
+y<-seq(ylimit1,ylimit2)
+x<-rep.int(l,length(y))
+lines(x,y, lty=2)
+
+}
+
+# CDC curves
+# males
+lines(agemos[sex==0],p50h[sex==0], lty=2, col=color[1], lwd=3)
+lines(cdcagemoh_2[cdcsexh_2==0 & cdcagemoh_2<=cut & cdcagemoh_2>36 ],p50h_2[cdcsexh_2==0 & cdcagemoh_2<=cut & cdcagemoh_2>36], lty=2, col=color[1], lwd=3)
+#text(cut+3, p50h_2[cdcsexh_2==0 & cdcagemoh_2==cut-.5],"CDC 50th" ,font=2, cex=.7)
+
+lines(agemos[sex==0],p5h[sex==0], lty=2, col=color[2], lwd=3)
+lines(cdcagemoh_2[cdcsexh_2==0 & cdcagemoh_2<=cut & cdcagemoh_2>36 ],p5h_2[cdcsexh_2==0 & cdcagemoh_2<=cut & cdcagemoh_2>36], lty=2, col=color[2], lwd=3)
+#text(cut+3, p5h_2[cdcsexh_2==0 & cdcagemoh_2==cut-.5],"CDC 5th" ,font=2, cex=.7)
+
+lines(agemos[sex==0],p95h[sex==0], lty=2, col=color[3], lwd=3)
+lines(cdcagemoh_2[cdcsexh_2==0 & cdcagemoh_2<=cut & cdcagemoh_2>36 ],p95h_2[cdcsexh_2==0 & cdcagemoh_2<=cut & cdcagemoh_2>36], lty=2, col=color[3], lwd=3)
+#text(cut+3, p95h_2[cdcsexh_2==0 & cdcagemoh_2==cut-.5],"CDC 95th" ,font=2, cex=.7)
+
+# females
+
+lines(agemos[sex==1],p50h[sex==1], lty=2, col=color[1], lwd=3)
+lines(cdcagemoh_2[cdcsexh_2==1 & cdcagemoh_2<=cut & cdcagemoh_2>36 ],p50h_2[cdcsexh_2==1 & cdcagemoh_2<=cut & cdcagemoh_2>36], lty=3, col=color[1], lwd=3)
+#text(cut+3, p50h_2[cdcsexh_2==1 & cdcagemoh_2==cut-.5],"CDC 50th" ,font=2, cex=.7)
+
+lines(agemos[sex==1],p5h[sex==1], lty=2, col=color[2], lwd=3)
+lines(cdcagemoh_2[cdcsexh_2==1 & cdcagemoh_2<=cut & cdcagemoh_2>36 ],p5h_2[cdcsexh_2==1 & cdcagemoh_2<=cut & cdcagemoh_2>36], lty=3, col=color[2], lwd=3)
+#text(cut+3, p5h_2[cdcsexh_2==1 & cdcagemoh_2==cut-0.5],"CDC 5th" ,font=2, cex=.7)
+
+lines(agemos[sex==1],p95h[sex==1], lty=2, col=color[3], lwd=3)
+lines(cdcagemoh_2[cdcsexh_2==1 & cdcagemoh_2<=cut & cdcagemoh_2>36 ],p95h_2[cdcsexh_2==1 & cdcagemoh_2<=cut & cdcagemoh_2>36], lty=3, col=color[3], lwd=3)
+#text(cut+3, p95h_2[cdcsexh_2==1 & cdcagemoh_2==cut-0.5],"CDC 95th" ,font=2, cex=.7)
+
+leg1.txt<-c("SLOS Males and Females", "CDC Males", "CDC Females")
+legend(2,190,col=c(color[3],color[3],color[3]),lwd=c(2,2,2),lty=c(1,2,3),legend= leg1.txt,text.width=45, cex=1.2, title=" Percentiles (5th, 50th, 95th)",bg="white")
+
+####################################################################################################################
+
+Graphic, weight for age 0-240 months :raw data
+
+
+## set cutoff months at , upper
+cut<-240
+xm.star <- df$agemos[ df$gender==0& nona & df$agemos<=cut]  
+wm.star <- df$height[ df$gender==0& nona & df$agemos<=cut]
+
+
+xf.star <- df$agemos[ df$gender==1& nona  & df$agemos<=cut]  
+wf.star <- df$height[ df$gender==1& nona  & df$agemos<=cut]
+# FIGURE 3: weight for age graphs 0-216
+
+
+
+# FIGURE 3: weight for age graphs 0-192
+
+cut<-240
+ylimit1<-30
+ylimit2<-200
+color<-c(4,2,1)
+
+plot(x.star,w.star,xlim=c(-15,cut+15), ylim=c(-15+ylimit1,ylimit2) ,xlab="", main= "",ylab="" , axes=F, font.main=2,col.main="blue",cex.lab=1.5,cex.main=2,type="n")
+
+mtext(side=3,"Males and Females 0-18 years: Raw Data",cex=2,font=2,col="blue",adj=0,line=2)
+
+text(-13,ylimit1+(ylimit2-ylimit1)/2,"Height (cm)",srt=90,cex=1.5)
+
+text(cut/2,ylimit1-14,"Age (years)", cex=1.5)
+
+
+axis(1,labels=FALSE,at=c(seq(0,cut, by = 6)),pos=c(ylimit1,ylimit1))
+axis(1,labels=(seq(0,cut/12 ,by=1)),at=c(seq(0,cut, by=12)),cex.axis=1.5,pos=c(ylimit1,ylimit1))
+par(las=1)
+axis(2,labels =c(seq(ylimit1,ylimit2, by=10)),at=c(seq(ylimit1,ylimit2, by=10)),cex.axis=1.5,pos=c(0,ylimit1))
+axis(4,labels =0.4*c(seq(ylimit1,ylimit2,by=10)),at=c(seq(ylimit1,ylimit2,by=10)),pos=c(cut+5,0),cex.axis=1.5)
+text(cut+15,ylimit1+(ylimit2-ylimit1)/2,"Height (inches)",srt=270, cex=1.5)
+
+# data points
+
+points(xm.star[xm.star<=cut],wm.star[xm.star<=cut], col="blue")
+points(xf.star[xf.star<=cut],wf.star[xf.star<=cut], col="red")
+
+

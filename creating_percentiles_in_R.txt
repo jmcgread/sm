@@ -1,0 +1,168 @@
+
+
+# load libraries needed for smoothing, prediction
+
+library(MASS)
+library(stats)
+library(SemiPar)
+library(lattice)
+
+
+# add GAMLLS package
+
+library(gamlss)
+
+# GEE and nlme
+
+library(gee)
+library(nlme)
+
+# lmtest, includes lrtest for nested
+library(lmtest)
+
+
+
+# load  SMdata
+
+setwd("C:/Users/jmcgread/Dropbox/JMCGREADY/consulting/kerry/smith magenis/data")
+growth.data <- read.csv("sm for R.csv")
+df<-growth.data
+
+# (gender=1 is female, 0 males)
+
+
+# getting comparable vectors with complete data
+
+nona<-!(is.na(df$heightcm) | is.na(df$agemos))
+
+# all males and females combined
+x.star <- df$agemos[nona]
+w.star <- df$heightcm[nona]
+
+# all males
+
+xm.star <- df$agemos[ df$gendercodedf1m0==1& nona]  
+wm.star <- df$heightcm[ df$gendercodedf1m0==1& nona]
+
+# all females
+
+xf.star <- df$agemos[ df$gendercodedf1m0==0& nona]  
+wf.star <- df$heightcm[ df$gendercodedf1m0==0& nona]
+
+
+
+	# create vectors
+
+count<-240
+
+
+	# set ‘window’
+# make it +/-1 for 036 months and +/-3 for 37-240
+
+window<-c(rep.int(1,36),rep.int(3,count-36))
+
+index<-rep.int(0,count)
+	#males and females
+w50<-rep.int(0,count)
+w5<-rep.int(0,count)
+w95<-rep.int(0,count)
+count_points<-rep.int(0,count)
+
+
+
+
+	# males
+wm50<-rep.int(0,count)
+wm5<-rep.int(0,count)
+wm95<-rep.int(0,count)
+count_pointsm<-rep.int(0,count)
+
+	# females
+wf50<-rep.int(0,count)
+wf5<-rep.int(0,count)
+wf95<-rep.int(0,count)
+count_pointsf<-rep.int(0,count)
+
+##########################################################################33
+### for original approach to smoothing percentiles
+
+
+for (i in 1:count)  {
+
+	j<-i-1
+	index[i]<-j
+	w<-window[i]
+# count – ie, number of points in each grouping
+
+
+	count_points[i]<- ifelse(length(w.star[x.star>=j-w & x.star <j+w &!is.na(w.star)])==0,1, length(w.star[x.star>=j-w & x.star <j+w &!is.na(w.star)]))
+	count_pointsm[i]<- ifelse(length(wm.star[xm.star>=j-w & xm.star <j+w &!is.na(wm.star)])==0,1, length(wm.star[xm.star>=j-w & xm.star <j+w &!is.na(wm.star)]))
+	count_pointsf[i]<- ifelse(length(wf.star[xf.star>=j-w & xf.star <j+w &!is.na(wf.star)])==0,1, length(wf.star[xf.star>=j-w & xf.star <j+w &!is.na(wf.star)]))
+	
+
+# medians
+
+	tempw<- quantile(w.star[x.star>=j-w & x.star <j+w],.5, na.rm=TRUE)
+	w50[i]<-ifelse(is.na(tempw) , w50[i-1],tempw)	
+
+	tempwm<- quantile(wm.star[xm.star>=j-w & xm.star <j+w],.5, na.rm=TRUE)
+	wm50[i]<-ifelse(is.na(tempwm) , wm50[i-1],tempwm)	
+
+	tempwf<- quantile(wf.star[xf.star>=j-w & xf.star <j+w],.5, na.rm=TRUE)
+	wf50[i]<-ifelse(is.na(tempwf) , wf50[i-1],tempwf)	
+
+
+# 5th percentiles
+
+	tempw<- quantile(w.star[x.star>=j-w & x.star <j+w],.05, na.rm=TRUE)
+	w5[i]<-ifelse(is.na(tempw) , w5[i-1],tempw)	
+
+	tempwm<- quantile(wm.star[xm.star>=j-w & xm.star <j+w],.05, na.rm=TRUE)
+	wm5[i]<-ifelse(is.na(tempwm) , wm5[i-1],tempwm)	
+
+	tempwf<- quantile(wf.star[xf.star>=j-w & xf.star <j+w],.05, na.rm=TRUE)
+	wf5[i]<-ifelse(is.na(tempwf) , wf5[i-1],tempwf)
+
+
+	
+
+# 95th percentiles
+
+	tempw<- quantile(w.star[x.star>=j-w & x.star <j+w],.95, na.rm=TRUE)
+	w95[i]<-ifelse(is.na(tempw) , w95[i-1],tempw)	
+
+	tempwm<- quantile(wm.star[xm.star>=j-w & xm.star <j+w],.95, na.rm=TRUE)
+	wm95[i]<-ifelse(is.na(tempwm) , wm95[i-1],tempwm)	
+
+	tempwf<- quantile(wf.star[xf.star>=j-w & xf.star <j+w],.95, na.rm=TRUE)
+	wf95[i]<-ifelse(is.na(tempwf) , wf95[i-1],tempwf)
+
+
+
+
+	}
+
+
+w.d<-data.frame(index, w50,  w5, w95, wm50, wm5, wm95, wf50, wf5, wf95)
+
+
+######
+
+
+####### counting data contributions
+
+cut<-36
+xm.star <- df$agemos[ df$gender==0& nona & df$agemos<=cut]  
+wm.star <- df$height[ df$gender==0& nona & df$agemos<=cut]
+idm.star<-df$id[ df$gender==0& nona & df$agemos<=cut]
+length(unique(idm.star))
+
+xf.star <- df$agemos[ df$gender==1& nona  & df$agemos<=cut]  
+wf.star <- df$height[ df$gender==1& nona  & df$agemos<=cut]
+idf.star<-df$id[ df$gender==1& nona  & df$agemos<=cut]
+length(unique(idf.star))
+
+x.star <- df$agemos[nona  & df$agemos<=cut]  
+w.star <- df$height[ nona  & df$agemos<=cut]
+id.star<-df$id[  nona  & df$agemos<=cut]
+length(unique(id.star))

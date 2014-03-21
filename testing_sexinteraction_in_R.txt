@@ -1,0 +1,47 @@
+library(gee)
+library(lmtest)
+library(lme4)
+library(MASS)
+library(gamlss)
+
+# testing interaction with sex 0-16 years
+
+
+
+
+# all males and females combine
+nona<-!(is.na(df$height) | is.na(df$agemos) | is.na(df$gender))
+
+
+cut<-192
+x.star <- df$agemos[nona & df$agemos<=cut]
+w.star <- df$height[nona& df$agemos<=cut]
+sex.star<-df$gender[nona& df$agemos<=cut]
+sid.star<-df$studyid[nona& df$agemos<=cut]
+sex_age.star<-x.star*sex.star
+# GEE
+
+
+spline_poly<-gee(w.star~ poly(x.star,3)+sex.star, sid.star)
+
+
+spline_poly_interact<-gee(w.star~ poly(x.star,3)+sex.star+poly(sex_age.star,3),  sid.star,corstr = "exchangeable")
+
+# Wald Test
+diff<-matrix(spline_poly_interact$coefficients[6:8])
+varcov<-matrix( spline_poly_interact$robust.variance[6:8,6:8],nrow=3)
+wald<-t(diff)%*%ginv(varcov)%*%diff
+
+
+# p-value
+pf(wald, length(diff), spline_poly_interact$nobs,lower.tail=F)
+
+
+# Random Intercepts
+
+spline_poly<-lmer(w.star~ poly(x.star,3)+sex.star+ (1| sid.star) )
+
+
+spline_poly_interact<-lmer(w.star~ poly(x.star,3)+sex.star+ poly(sex_age.star,3)+(1| sid.star) )
+
+anova(spline_poly, spline_poly_interact)
