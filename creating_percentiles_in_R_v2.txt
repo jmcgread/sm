@@ -37,7 +37,7 @@ nona<-!(is.na(df$heightcm) | is.na(df$agemos)| is.na(df$weightcm) )
 
 # all males and females combined
 x.star <- df$agemos[nona]
-h.star<-df$weightcm[nona]
+h.star<-df$heightcm[nona]
 w.star <- df$weightkg[nona]
 bmi.star<-df$bmi_computed[nona]
 
@@ -52,7 +52,7 @@ bmim.star<-df$bmi_computed[ df$gendercodedf1m0==1& nona]
 
 xf.star <- df$agemos[ df$gendercodedf1m0==0& nona]
 hf.star <- df$heightcm[ df$gendercodedf1m0==0& nona] 
-wf.star <- df$weightkg[ df$gendercodedf1m0==0& non]
+wf.star <- df$weightkg[ df$gendercodedf1m0==0& nona]
 bmif.star<-df$bmi_computed[ df$gendercodedf1m0==0& nona]
 
 
@@ -136,13 +136,15 @@ for (i in 1:count)  {
 
 	# height
 	temph<- quantile(h.star[x.star>=j-w & x.star <j+w],.5, na.rm=TRUE)
-	h50[i]<-ifelse(is.na(temph) , w50[i-1],temph)	
+	h50[i]<-ifelse(is.na(temph) , h50[i-1],temph)	
 
 	temphm<- quantile(hm.star[xm.star>=j-w & hm.star <j+w],.5, na.rm=TRUE)
-	hm50[i]<-ifelse(is.na(temphm) , wm50[i-1],temphm)	
+	hm50[i]<-ifelse(is.na(temphm) , hm50[i-1],temphm)	
 
 	temphf<- quantile(hf.star[xf.star>=j-w & hf.star <j+w],.5, na.rm=TRUE)
-	hf50[i]<-ifelse(is.na(temphf) , wf50[i-1],temphf)
+	hf50[i]<-ifelse(is.na(temphf) , hf50[i-1],temphf)
+
+
 
 	# weight 
 
@@ -158,16 +160,32 @@ for (i in 1:count)  {
 	# bmi 
 
 	tempbmi<- quantile(bmi.star[x.star>=j-w & x.star <j+w],.5, na.rm=TRUE)
-	bmi50[i]<-ifelse(is.na(tempbmi) , w50[i-1],tempbmi)	
+	bmi50[i]<-ifelse(is.na(tempbmi) , bmi50[i-1],tempbmi)	
 
-	tempwbmi<- quantile(bmi.star[xm.star>=j-w & xm.star <j+w],.5, na.rm=TRUE)
-	bmim50[i]<-ifelse(is.na(tempbmim) , wm50[i-1],tempbmim)	
+	tempbmim<- quantile(bmi.star[xm.star>=j-w & xm.star <j+w],.5, na.rm=TRUE)
+	bmim50[i]<-ifelse(is.na(tempbmim) , bmim50[i-1],tempbmim)	
 
 	tempbmif<- quantile(bmif.star[xf.star>=j-w & xf.star <j+w],.5, na.rm=TRUE)
-	bmif50[i]<-ifelse(is.na(tempbmif) , wf50[i-1],tempbmif)	
+	bmif50[i]<-ifelse(is.na(tempbmif) , bmif50[i-1],tempbmif)	
+
 
 
 # 5th percentiles
+
+	# height
+	temph<- quantile(h.star[x.star>=j-w & x.star <j+w],.05, na.rm=TRUE)
+	h5[i]<-ifelse(is.na(temph) , w5[i-1],temph)	
+
+	temphm<- quantile(hm.star[xm.star>=j-w & hm.star <j+w],.05, na.rm=TRUE)
+	hm5[i]<-ifelse(is.na(temphm) , wm5[i-1],temphm)	
+
+	temphf<- quantile(hf.star[xf.star>=j-w & hf.star <j+w],.05, na.rm=TRUE)
+	hf5[i]<-ifelse(is.na(temphf) , wf5[i-1],temphf)
+
+
+
+	# weight 
+
 
 	tempw<- quantile(w.star[x.star>=j-w & x.star <j+w],.05, na.rm=TRUE)
 	w5[i]<-ifelse(is.na(tempw) , w5[i-1],tempw)	
@@ -179,9 +197,34 @@ for (i in 1:count)  {
 	wf5[i]<-ifelse(is.na(tempwf) , wf5[i-1],tempwf)
 
 
-	
+	# bmi 
+
+	tempbmi<- quantile(bmi.star[x.star>=j-w & x.star <j+w],.05, na.rm=TRUE)
+	bmi5[i]<-ifelse(is.na(tempbmi) , bmi5[i-1],tempbmi)	
+
+	tempbmim<- quantile(bmi.star[xm.star>=j-w & xm.star <j+w],.05, na.rm=TRUE)
+	bmim5[i]<-ifelse(is.na(tempbmim) , bmim5[i-1],tempbmim)	
+
+	tempbmif<- quantile(bmif.star[xf.star>=j-w & xf.star <j+w],.05, na.rm=TRUE)
+	bmif5[i]<-ifelse(is.na(tempbmif) , bmif5[i-1],tempbmif)	
+
+
+
 
 # 95th percentiles
+
+	# height
+
+	temph<- quantile(h.star[x.star>=j-w & x.star <j+w],.95, na.rm=TRUE)
+	h95[i]<-ifelse(is.na(temph) , h95[i-1],temph)	
+
+	temphm<- quantile(hm.star[xm.star>=j-w & hm.star <j+w],.95, na.rm=TRUE)
+	hm95[i]<-ifelse(is.na(temphm) , hm95[i-1],temphm)	
+
+	temphf<- quantile(hf.star[xf.star>=j-w & hf.star <j+w],.95, na.rm=TRUE)
+	hf95[i]<-ifelse(is.na(temphf) , wf95[i-1],temphf)
+
+	#weight
 
 	tempw<- quantile(w.star[x.star>=j-w & x.star <j+w],.95, na.rm=TRUE)
 	w95[i]<-ifelse(is.na(tempw) , w95[i-1],tempw)	
@@ -193,13 +236,22 @@ for (i in 1:count)  {
 	wf95[i]<-ifelse(is.na(tempwf) , wf95[i-1],tempwf)
 
 
+	# bmi 
 
+	tempbmi<- quantile(bmi.star[x.star>=j-w & x.star <j+w],.95, na.rm=TRUE)
+	bmi95[i]<-ifelse(is.na(tempbmi) , bmi95[i-1],tempbmi)	
 
-	}
+	tempbmim<- quantile(bmi.star[xm.star>=j-w & xm.star <j+w],.95, na.rm=TRUE)
+	bmim95[i]<-ifelse(is.na(tempbmim) , bmim95[i-1],tempbmim)	
 
+	tempbmif<- quantile(bmif.star[xf.star>=j-w & xf.star <j+w],.95, na.rm=TRUE)
+	bmif95[i]<-ifelse(is.na(tempbmif) , bmif95[i-1],tempbmif)	
 
+}
+
+h.d<-data.frame(index, h50,  h5, h95, hm50, hm5, hm95, hf50, hf5, hf95)
 w.d<-data.frame(index, w50,  w5, w95, wm50, wm5, wm95, wf50, wf5, wf95)
-
+bmi.d<-data.frame(index, bmi50,  bmi5, bmi95, bmim50, bmim5, bmim95, bmif50, bmif5, bmif95)
 
 ######
 
