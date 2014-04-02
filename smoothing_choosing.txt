@@ -1,0 +1,36 @@
+
+# Height:
+
+cut2<-192
+a<-( index<=cut2+1)
+xa<-h.d$index[a]
+y50<-h.d$h50[a]
+y5<-h.d$h5[a]
+y95<-h.d$h95[a]
+
+cut<-192
+ylimit<-200
+color<-c(4,2,1)
+
+degf<-c(2:20)
+end<-length(df)
+
+aic95<-rep.int(0,end)
+aic50<-rep.int(0,end)
+aic5<-rep.int(0,end)
+aicsum<-rep.int(0,end)
+
+for (i in 1:end) {
+
+
+g95a <- gamlss(y95~cs(xa,df=degf[i]), family=NO)
+g50a <- gamlss(y50~cs(xa,df=degf[i]), family=NO)
+g5a <- gamlss(y5~cs(xa,df=degf[i]), family=NO)
+
+aic95[i]<-AIC(g95a)
+aic50[i]<-AIC(g50a)
+aic5[i]<-AIC(g5a)
+aicsum[i]<-AIC(g95a)+AIC(g50a)+AIC(g5a)
+}
+
+cbind(degf, aic95, aic50, aic5, aicsum)

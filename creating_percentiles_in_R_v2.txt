@@ -26,34 +26,34 @@ library(lmtest)
 
 setwd("C:/Users/jmcgread/Dropbox/JMCGREADY/consulting/kerry/smith magenis/data")
 growth.data <- read.csv("sm for R.csv")
-df<-growth.data
+attach(growth.data)
 
 # (gender=1 is female, 0 males)
 
 
 # getting comparable vectors with complete data
 
-nona<-!(is.na(df$heightcm) | is.na(df$agemos)| is.na(df$weightcm) )
+nona<-!(is.na(heightcm) | is.na(agemos)| is.na(weightkg) )
 
 # all males and females combined
-x.star <- df$agemos[nona]
-h.star<-df$heightcm[nona]
-w.star <- df$weightkg[nona]
-bmi.star<-df$bmi_computed[nona]
+x.star <- agemos[nona]
+h.star<-heightcm[nona]
+w.star <- weightkg[nona]
+bmi.star<-bmi_computed[nona]
 
 # all males
 
-xm.star <- df$agemos[ df$gendercodedf1m0==1& nona] 
-hm.star <- df$heightcm[ df$gendercodedf1m0==1& nona]
-wm.star <- df$weightkg[ df$gendercodedf1m0==1& nona]
-bmim.star<-df$bmi_computed[ df$gendercodedf1m0==1& nona]
+xm.star <- agemos[gendercodedf1m0==1& nona] 
+hm.star <- heightcm[gendercodedf1m0==1& nona]
+wm.star <- weightkg[gendercodedf1m0==1& nona]
+bmim.star<-bmi_computed[gendercodedf1m0==1& nona]
 
 # all females
 
-xf.star <- df$agemos[ df$gendercodedf1m0==0& nona]
-hf.star <- df$heightcm[ df$gendercodedf1m0==0& nona] 
-wf.star <- df$weightkg[ df$gendercodedf1m0==0& nona]
-bmif.star<-df$bmi_computed[ df$gendercodedf1m0==0& nona]
+xf.star <- agemos[gendercodedf1m0==0& nona]
+hf.star <- heightcm[ gendercodedf1m0==0& nona] 
+wf.star <- weightkg[gendercodedf1m0==0& nona]
+bmif.star<-bmi_computed[gendercodedf1m0==0& nona]
 
 
 	# create vectors
